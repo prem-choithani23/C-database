@@ -13,16 +13,20 @@ char * int_to_string(int n)
 
     return buffer;
 }
-int main(void)
-{
-    srand(time(NULL));
-    FILE * file = fopen("students.db" ,"wb");
 
-    if (file == NULL)
-    {
-        printf("File opening failed");
-        return 0;
-    }
+void read_record(FILE * file , int index , Student *out)
+{
+    int stream = fseek(file, (index - 1) * sizeof(Student) , SEEK_SET);
+
+    fread(out , sizeof(Student) , 1 , file);
+
+    printf("%d" , stream);
+}
+
+void insert_rows(FILE * file)
+{
+
+
 
     size_t size_of_item = sizeof(Student);
     char new_name[50];
@@ -31,7 +35,7 @@ int main(void)
 
     int num_items = 100;
 
-    for (int i=0;i<num_items;i++)
+    for (int i=1;i<=num_items;i++)
     {
         char name [11] = "Student_";
 
@@ -57,7 +61,31 @@ int main(void)
             printf("Write failed...");
         }
     }
+}
+int main(void)
+{
+    srand(time(NULL));
+    FILE * file = fopen("students.db" ,"wb");
 
+
+    if (file == NULL)
+    {
+        printf("File opening failed");
+        return 0;
+    }
+
+    // write 100 rows
+    insert_rows(file);
+
+    fclose(file);
+
+
+    // read a specific row by search_id
+    file = fopen("students.db" ,"rb");
+    int search_id = 2;
+    Student s;
+    read_record(file , search_id , &s);
+    printf("\nStudent : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
     fclose(file);
 
 
