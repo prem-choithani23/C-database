@@ -16,11 +16,18 @@ char * int_to_string(int n)
 
 void read_record(FILE * file , int index , Student *out)
 {
-    int stream = fseek(file, (index - 1) * sizeof(Student) , SEEK_SET);
+    int stream = fseek(file, (index) * sizeof(Student) , SEEK_SET);
 
     fread(out , sizeof(Student) , 1 , file);
 
     printf("%d" , stream);
+}
+
+void update_record(FILE * file , int index , Student *updated)
+{
+    int stream = fseek(file , index*sizeof(Student) ,SEEK_SET );
+
+
 }
 
 void insert_rows(FILE * file)
@@ -35,7 +42,7 @@ void insert_rows(FILE * file)
 
     int num_items = 100;
 
-    for (int i=1;i<=num_items;i++)
+    for (int i=0;i<num_items;i++)
     {
         char name [11] = "Student_";
 
@@ -65,7 +72,7 @@ void insert_rows(FILE * file)
 int main(void)
 {
     srand(time(NULL));
-    FILE * file = fopen("students.db" ,"wb");
+    FILE * file = fopen("students.db" ,"rb+");
 
 
     if (file == NULL)
@@ -75,14 +82,10 @@ int main(void)
     }
 
     // write 100 rows
-    insert_rows(file);
-
-    fclose(file);
+    // insert_rows(file);
 
 
-    // read a specific row by search_id
-    file = fopen("students.db" ,"rb");
-    int search_id = 2;
+    int search_id = 13;
     Student s;
     read_record(file , search_id , &s);
     printf("\nStudent : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
