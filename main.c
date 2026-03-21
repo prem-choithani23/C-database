@@ -20,25 +20,22 @@ void read_record(FILE * file , int index , Student *out)
 
     fread(out , sizeof(Student) , 1 , file);
 
-    printf("%d" , stream);
 }
 
 void update_record(FILE * file , int index , Student *updated)
 {
     int stream = fseek(file , index*sizeof(Student) ,SEEK_SET );
 
+    fwrite(updated , sizeof(Student) , 1 ,file);
+
+    printf("Update Success...\n");
 
 }
 
 void insert_rows(FILE * file)
 {
-
-
-
     size_t size_of_item = sizeof(Student);
     char new_name[50];
-
-
 
     int num_items = 100;
 
@@ -69,6 +66,21 @@ void insert_rows(FILE * file)
         }
     }
 }
+
+void print_student(Student s)
+{
+    printf("\nStudent : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
+}
+
+void print_db(FILE * file ,int num_records)
+{
+    for (int i=0;i<100;i++)
+    {
+        Student s;
+        read_record(file , i , &s);
+        print_student(s);
+    }
+}
 int main(void)
 {
     srand(time(NULL));
@@ -82,15 +94,30 @@ int main(void)
     }
 
     // write 100 rows
-    // insert_rows(file);
+    insert_rows(file);
 
 
     int search_id = 13;
     Student s;
     read_record(file , search_id , &s);
-    printf("\nStudent : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
-    fclose(file);
 
+
+
+    printf("Before Update : ");
+    print_student(s);
+
+    Student updated = {search_id , "Ramesh",37};
+
+    update_record(file , search_id , &updated);
+
+    printf("After Update : ");
+    read_record(file , search_id , &s);
+    print_student(s);
+
+
+    print_db(file , 100);
+
+    fclose(file);
 
     return 0;
 }
