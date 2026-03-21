@@ -5,6 +5,8 @@
 #include <time.h>
 #include <string.h>
 #include "student_packed.h"
+#include "modified_student.h"
+#include <stdbool.h>
 void int_to_string(int n , char * buffer)
 {
     sprintf(buffer  ,"%d" , n );
@@ -144,18 +146,91 @@ void insert_rows_packed(FILE * file)
     }
 }
 
+void insert_rows_soft_student(FILE * file)
+{
+    // define size of item
+    size_t size_of_item = sizeof(SoftStudent);
+
+    // temp array for storing names
+    char new_name[50];
+
+
+    // number of items to write
+    int num_items = 100;
+
+    for (int i=0;i<num_items;i++)
+    {
+        // all students having name of form 'Student_id'
+
+        char name [11] = "Student_";
+        char id[3];
+
+        // converting id to string
+        int_to_string(i , id);
+
+        // append the converted int to name
+        strcat(name , id);
+
+        // as arrays cannot be changes by simply change the reference , we do cpy
+        strcpy(new_name, name);
+
+        // define a random age
+        int age = 15 + rand()%30;
+
+        SoftStudent student;
+        memset(&student , 0 , sizeof(SoftStudent));
+
+        // set id
+        student.id = i;
+
+        // set is_deleted  =false
+        student.is_deleted = false;
+
+        // set name ( using cpy) and not 'new_name = name'
+        strcpy(student.name ,new_name);
+
+
+        // set age
+        student.age = age;
+
+        // write 'size_of_item' bytes with the contents pointed by &s , 1 time . at location pointed by file
+        int write = fwrite( &student,size_of_item , 1, file);
+
+        if (write == 0)
+        {
+            printf("Write failed...");
+        }
+    }
+}
+
 void print_student(Student s)
 {
     printf("Student : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
 }
 
+void print_soft_student(SoftStudent s)
+{
+    printf("Student : (id='%d'  , name='%s' , age='%d' , is_deleted='%d')\n" , s.id, s.name , s.age ,s.is_deleted);
+}
+
 void print_db(FILE * file ,int num_records)
 {
-    for (int i=0;i<100;i++)
+    for (int i=0;i<num_records;i++)
     {
         Student s;
         read_record(file , i , &s);
         print_student(s);
+    }
+}
+
+void print_soft_db(FILE * file ,int num_records)
+{
+    fseek(file , 0 , SEEK_SET);
+    for (int i=0;i<num_records;i++)
+    {
+        SoftStudent s;
+        fread(&s , sizeof(SoftStudent) , 1 ,file);
+        print_soft_student(s);
     }
 }
 
@@ -201,6 +276,39 @@ int find_by_name(FILE *file, const char *name, Student *out)
     return -1;
 }
 
+
+void print_db_skip_delete(FILE * file , int num_rows)
+{
+    fseek(file , 0 , SEEK_SET);
+    for (int i=0;i<100;i++)
+    {
+        SoftStudent s;
+        fread(&s , sizeof(SoftStudent) , 1 ,file);
+        if (!s.is_deleted)
+            print_soft_student(s);
+    }
+}
+
+void delete_record(FILE * file , int index)
+{
+    int stream = fseek(file, index*sizeof(SoftStudent), SEEK_SET);
+    SoftStudent s;
+    fread(&s , sizeof(SoftStudent) , 1 , file);
+    if (s.is_deleted)
+    {
+        printf("Student already deleted...\n");
+        return;
+    }
+
+    s.is_deleted = true;
+
+    stream = fseek(file, index*sizeof(SoftStudent), SEEK_SET);
+    fwrite(&s , sizeof(SoftStudent) , 1, file);
+
+    printf("Student deleted successfully...\n");
+
+
+}
 // 1. Insert , Read ,  Update
 // int main(void)
 // {
@@ -290,22 +398,37 @@ int find_by_name(FILE *file, const char *name, Student *out)
 
 
 // 4. find by name
+// int main(int argc, char* argv[])
+// {
+//     const char * name  = "Kolaa";
+//
+//     FILE * file = fopen("students.db" ,"rb");
+//
+//     Student s;
+//     int found = find_by_name(file , name , &s);
+//
+//     if (found == -1)
+//     {
+//         printf("No student with name : '%s' found in db" , name);
+//     }else
+//     {
+//         print_student(s);
+//     }
+//
+//     fclose(file);
+// }
+
+//5. soft delete
 int main(int argc, char* argv[])
 {
-    const char * name  = "Kolaa";
+    FILE * file  = fopen("soft_students.db" , "rb+");
 
-    FILE * file = fopen("students.db" ,"rb");
+    // insert_rows_soft_student(file);
 
-    Student s;
-    int found = find_by_name(file , name , &s);
+    delete_record(file , 23);
+    delete_record(file , 98);
 
-    if (found == -1)
-    {
-        printf("No student with name : '%s' found in db" , name);
-    }else
-    {
-        print_student(s);
-    }
-
+    print_db_skip_delete(file , 100);
     fclose(file);
 }
+
