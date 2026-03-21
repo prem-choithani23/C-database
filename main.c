@@ -5,13 +5,9 @@
 #include <time.h>
 #include <string.h>
 
-char * int_to_string(int n)
+void int_to_string(int n , char * buffer)
 {
-    char * buffer = (char*)malloc(sizeof(char)*3);
-
     sprintf(buffer  ,"%d" , n );
-
-    return buffer;
 }
 
 void read_record(FILE * file , int index , Student *out)
@@ -42,14 +38,14 @@ void insert_rows(FILE * file)
     for (int i=0;i<num_items;i++)
     {
         char name [11] = "Student_";
+        char id[3];
 
-        char * buffer= int_to_string(i);
+        int_to_string(i , id);
 
-        strcat(name , buffer);
+        strcat(name , id);
 
 
         strcpy(new_name, name);
-        free(buffer);
 
         int age = 15 + rand()%30;
 
@@ -69,7 +65,7 @@ void insert_rows(FILE * file)
 
 void print_student(Student s)
 {
-    printf("\nStudent : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
+    printf("Student : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
 }
 
 void print_db(FILE * file ,int num_records)
