@@ -184,6 +184,22 @@ void hex_dump(const char * filename ,int num_records)
     fclose(file);
 }
 
+int find_by_name(FILE *file, const char *name, Student *out)
+{
+
+    int stream = fseek(file , 0, SEEK_SET);
+
+    for (int row = 0;row < 100;row++)
+    {
+        fread(out,  sizeof(Student) ,1 , file);
+        if (strcmp(out->name , name) == 0)
+        {
+            return row;
+        }
+    }
+
+    return -1;
+}
 
 // 1. Insert , Read ,  Update
 // int main(void)
@@ -245,28 +261,50 @@ void hex_dump(const char * filename ,int num_records)
 
 
 // 3. Packed Student
+// int main(int argc, char* argv[])
+// {
+//     // printf("Student : %d \n Packed student : %d\n " ,sizeof(Student) ,sizeof(StudentPacked)); // 60 & 58
+//
+//     FILE * file = fopen("packed.db" , "rb+");
+//     if (file == NULL)
+//     {
+//         printf("File opening failed....\n");
+//         return 0;
+//     }
+//
+//     // write 5 records of Student Packed in packed.db
+//     insert_rows_packed(file);
+//
+//     // reading using Student
+//     fseek(file , 0 , SEEK_SET);
+//     for (int i=0;i<5;i++)
+//     {
+//         Student s;
+//
+//         int out = fread(&s , sizeof(Student) , 1 , file);
+//         printf("StudentPacked : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
+//     }
+//
+//     fclose(file);
+// }
+
+
+// 4. find by name
 int main(int argc, char* argv[])
 {
-    // printf("Student : %d \n Packed student : %d\n " ,sizeof(Student) ,sizeof(StudentPacked)); // 60 & 58
+    const char * name  = "Kolaa";
 
-    FILE * file = fopen("packed.db" , "rb+");
-    if (file == NULL)
+    FILE * file = fopen("students.db" ,"rb");
+
+    Student s;
+    int found = find_by_name(file , name , &s);
+
+    if (found == -1)
     {
-        printf("File opening failed....\n");
-        return 0;
-    }
-
-    // write 5 records of Student Packed in packed.db
-    insert_rows_packed(file);
-
-    // reading using Student
-    fseek(file , 0 , SEEK_SET);
-    for (int i=0;i<5;i++)
+        printf("No student with name : '%s' found in db" , name);
+    }else
     {
-        Student s;
-
-        int out = fread(&s , sizeof(Student) , 1 , file);
-        printf("StudentPacked : (id='%d'  , name='%s' , age='%d')\n" , s.id, s.name , s.age);
+        print_student(s);
     }
 
     fclose(file);
