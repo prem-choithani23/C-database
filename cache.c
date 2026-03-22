@@ -80,7 +80,7 @@ void read_entry(FILE * file , int id , SoftStudent *s)
     fread(s , sizeof(SoftStudent) , 1 , file);
 }
 
-int get(PageCache * cache , int id,SoftStudent *student)
+int get(PageCache * cache , int id,SoftStudent *student, FILE * file)
 {
     for (int i=0;i<cache->count;i++)
     {
@@ -99,12 +99,8 @@ int get(PageCache * cache , int id,SoftStudent *student)
     }
 
     SoftStudent s;
-    FILE * file = fopen("soft_students.db" , "rb");
     read_entry(file , id ,&s);
-    fclose(file);
-
     put(cache , &s);
-
 
     return 1;
 }
@@ -192,14 +188,14 @@ int main(int argc, char* argv[])
 
     printf("Size of cache : %d\n" , cache.count);
 
-    int found1 = get(&cache , 5 , &s);
+    int found1 = get(&cache , 5 , &s, file);
     if (found1)
     {
         printSoftStudent(&s);
     }
     printPageCache(&cache);
 
-    int found2 = get(&cache , 99 , &s);
+    int found2 = get(&cache , 99 , &s, file);
     if (found2)
     {
         printSoftStudent(&s);
