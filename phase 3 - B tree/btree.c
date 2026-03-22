@@ -222,5 +222,14 @@ int main() {
     inorder(root);
     printf("\n");
 
+    int search_keys[] = {7, 17, 99, 1, 30};
+    for (int i = 0; i < 5; i++) {
+        Node *result = search(root, search_keys[i]);
+        if (result)
+            printf("Found %d in node\n", search_keys[i]);
+        else
+            printf("%d NOT found\n", search_keys[i]);
+    }
+
     return 0;
 }
