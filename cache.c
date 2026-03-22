@@ -19,12 +19,14 @@ PageCache create_cache(int capacity)
 
     return cache;
 }
+
 void free_cache(PageCache *cache) {
     free(cache->pages);
     cache->pages = NULL;
     cache->count = 0;
     cache->capacity = 0;
 }
+
 bool is_full(PageCache *cache)
 {
     return cache->count == cache->capacity;
@@ -34,6 +36,7 @@ bool is_empty(PageCache *cache)
 {
     return cache->count == 0;
 }
+
 int find_min(PageCache *cache)
 {
     int min_idx = 0;
@@ -50,6 +53,7 @@ int find_min(PageCache *cache)
 
     return min_idx;
 }
+
 int put(PageCache * cache, SoftStudent * student)
 {
     PageEntry entry;
@@ -69,11 +73,13 @@ int put(PageCache * cache, SoftStudent * student)
     cache->count++;
     return 1;
 }
+
 void read_entry(FILE * file , int id , SoftStudent *s)
 {
     int stream = fseek(file , id*sizeof(SoftStudent) , SEEK_SET);
     fread(s , sizeof(SoftStudent) , 1 , file);
 }
+
 int get(PageCache * cache , int id,SoftStudent *student)
 {
     for (int i=0;i<cache->count;i++)
@@ -100,8 +106,9 @@ int get(PageCache * cache , int id,SoftStudent *student)
     put(cache , &s);
 
 
-    return 0;
+    return 1;
 }
+
 void load_records(PageCache *cache , int start_id , int end_id, FILE * file)
 {
     int stream = fseek(file , start_id*sizeof(SoftStudent) , SEEK_SET);
@@ -130,6 +137,7 @@ void printSoftStudent(const SoftStudent *s) {
     printf(" Deleted   : %s\n", s->is_deleted ? "Yes" : "No");
     printf("====================================\n");
 }
+
 void printPageCache(const PageCache *cache) {
     if (!cache) {
         printf("PageCache: NULL\n");
@@ -169,6 +177,7 @@ void printPageCache(const PageCache *cache) {
 
     printf("============================================================\n");
 }
+
 int main(int argc, char* argv[])
 {
     SoftStudent s;
