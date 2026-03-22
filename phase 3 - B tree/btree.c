@@ -21,6 +21,13 @@ Node * create_node(bool is_leaf)
 }
 void free_node(Node * node)
 {
+    if (node == NULL) return;
+
+    for (int i=0;i<=node->key_count;i++)
+    {
+        if (node->children[i]!=NULL)
+            free_node(node->children[i]);
+    }
     node->key_count = 0;
     node->is_leaf =false;
     free(node);
@@ -74,7 +81,7 @@ void split_child(Node * parent , int found_idx , Node * full_child)
     parent->children[found_idx+1] = right_child;
     parent->key_count++;
 
-    free_node(full_child);
+    free(full_child);
 }
 
 Node * insert_non_full(Node *node , int key)
@@ -230,6 +237,8 @@ int main() {
         else
             printf("%d NOT found\n", search_keys[i]);
     }
+
+    free_node(root);
 
     return 0;
 }
