@@ -11,8 +11,8 @@
 #include <stdbool.h>
 typedef struct node
 {
-    int keys[MAX_KEYS];
-    struct node * children[MAX_CHILDREN];
+    int keys[MAX_KEYS + 1];
+    struct node * children[MAX_CHILDREN + 1];
     int key_count;
     bool is_leaf;
 }Node;
