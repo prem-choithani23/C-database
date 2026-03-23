@@ -4,7 +4,7 @@
 
 #ifndef CDB_BTREE_H
 #define CDB_BTREE_H
-#define ORDER 3
+#define ORDER 4
 #define MAX_CHILDREN (ORDER)
 #define MAX_KEYS (ORDER - 1)
 
