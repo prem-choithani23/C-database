@@ -1,23 +1,1 @@
-//
-// Created by prem on 3/23/26.
-//
-
-#ifndef CDB_BPLUS_H
-#define CDB_BPLUS_H
-#include <stdbool.h>
-#define ORDER 4
-#define MAX_KEYS (ORDER - 1)
-#define MAX_CHILDREN (ORDER)
-#include "student.h"
-
-typedef struct bplus_node
-{
-    int keys[MAX_KEYS + 1];
-    struct bplus_node *children[MAX_CHILDREN+1];
-    Student records[MAX_KEYS]; //only at leaf
-    struct bplus_node *next; // only at leaf
-    int key_count;
-    bool is_leaf;
-
-}BPlusNode;
-#endif //CDB_BPLUS_H
+//// Created by prem on 3/23/26.//#ifndef CDB_BPLUS_H#define CDB_BPLUS_H#include <stdbool.h>#define ORDER 3#define MAX_KEYS (ORDER - 1)#define MAX_CHILDREN (ORDER)#include "student.h"typedef struct bplus_node{    int keys[MAX_KEYS + 1];    struct bplus_node *children[MAX_CHILDREN+1];    Student records[MAX_KEYS]; //only at leaf    struct bplus_node *next; // only at leaf    int key_count;    bool is_leaf;}BPlusNode;#endif //CDB_BPLUS_H
