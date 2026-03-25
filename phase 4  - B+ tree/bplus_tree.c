@@ -33,6 +33,33 @@ int get_expected_position(BPlusNode *node, int key)
     return pos;
 }
 
+Student * search_bplus(BPlusNode * root , int key)
+{
+    if (root == NULL) return NULL;
+
+    int pos= 0;
+    BPlusNode * curr = root;
+
+    while (!curr->is_leaf)
+    {
+        pos = 0;
+        while (pos < curr->key_count && curr->keys[pos] <= key) pos++;
+        curr = curr->children[pos];
+
+    }
+
+    for (int i=0;i<curr->key_count;i++)
+    {
+        if (curr->keys[i] == key)
+        {
+            return &curr->records[i];
+        }
+    }
+
+    return NULL;
+
+}
+
 BPlusNode * create_bplus_node(bool is_leaf)
 {
     BPlusNode * node = (BPlusNode*)calloc(1 ,sizeof(BPlusNode));
@@ -80,6 +107,7 @@ void get_students_between(BPlusNode * root , int start_id , int end_id )
 
     for (int i=pos;i<p->key_count;i++)
     {
+        if (p->keys[i] > end_id) break;
         printf("Key : %d " , p->keys[i]);
         print_student(p->records[i]);
     }
@@ -126,26 +154,48 @@ void inorder(BPlusNode * node)
     return;
 }
 
+void print_bplus_tree(BPlusNode *root, int level) {
+    if (!root) return;
+
+    for (int i = root->key_count; i >= 0; i--) {
+        if (!root->is_leaf)
+            print_bplus_tree(root->children[i], level + 1);
+
+        if (i < root->key_count) {
+            for (int j = 0; j < level; j++) printf("    ");
+            printf("%d\n", root->keys[i]);
+        }
+    }
+}
 void split_leaf(BPlusNode *parent, int found_idx)
 {
 
+    // get the leaf which is full
     BPlusNode * full_leaf = parent->children[found_idx];
 
+    // store the next pointer of full_leaf before splitting
     BPlusNode * break_point_list =full_leaf->next;
 
+    // get size of leaf
     int size_of_leaf = full_leaf->key_count;
+
+    // if new element got inserted in full_leaf , size of leaf would be
     int temp_size = size_of_leaf + 1;
 
+    // median idx as per  ideal leaf size
     int median_idx = temp_size/2;
 
+    // median element as per  ideal leaf size
     int median_elem = full_leaf->keys[median_idx];
 
+    // create a new node
     BPlusNode  * right_leaf = create_bplus_node(true);
 
 
-
+    // assign size 0
     int right_leaf_size = 0;
-    // elements from 'median_idx' to full_lead.key_count get removed from full_leaf
+
+    // elements from 'median_idx' to full_lead.key_count get moved to right leaf from full_leaf
     for (int i=median_idx;i<full_leaf->key_count;i++)
     {
         right_leaf->keys[i - median_idx] = full_leaf->keys[i];
@@ -153,24 +203,35 @@ void split_leaf(BPlusNode *parent, int found_idx)
         right_leaf_size++;
     }
 
+    // update new size of full leaf
     full_leaf->key_count = median_idx;
 
+    // assign right ass full_leaf.next (full_leaf ------> right_leaf)
     full_leaf->next = right_leaf;
+
+    // assign what was next of full_leaf before splitting as right_leaf.next (full_leaf ------> right_leaf -------> break_point_list)
     right_leaf->next = break_point_list;
 
-
+    // insert the median elemet in parent
     int pos = get_expected_position(parent , median_elem);
-    // insert median element in parent
+
+    // shift keys as per expected position of median
     for (int i=parent->key_count-1;i>=pos;i--) parent->keys[i+1] = parent->keys[i];
+
+    // shift children as per expected position of median
     for (int i=parent->key_count;i>=pos;i--) parent->children[i+1] = parent->children[i];
     parent->keys[pos] = median_elem;
 
+    // update key_count of parent by 1
     parent->key_count++;
 
+    // update key_count of right_leaf by its calculated size
     right_leaf->key_count = right_leaf_size;
 
+    // to be safe
     parent->is_leaf = false;
 
+    // assign children of parent
     parent->children[pos] = full_leaf;
     parent->children[pos + 1] = right_leaf;
 
@@ -274,7 +335,7 @@ void bplus_insert(BPlusNode **root , int key, Student *record)
             split_leaf(new_root, 0);
         else
         {
-            // split_internal()
+            split_internal(new_root , 0);
         }
 
         *root = new_root;
@@ -311,8 +372,10 @@ int main() {
     printf("===== Inorder (all leaves via next ptr) =====\n");
     inorder(root);
 
-    int start = 20,end = 40;
-    printf("Getting students between id %d & %d\n : " ,start,end);
+
+    printf("\n");
+    int start = 4,end = 30;
+    printf("Getting students between id %d & %d : \n" ,start,end);
     get_students_between(root , start , end);
 
     printf("\n");
@@ -320,9 +383,21 @@ int main() {
 
     print_leaf_chain(root);
 
-    // printf("\n===== Search =====\n");
+
+    print_bplus_tree(root, 0);
+
+    printf("\n===== Search =====\n");
     // you write search_bplus — find key in tree, return record
     // test with id=7 (exists) and id=99 (not exists)
-
+    int search_id = 7;
+    Student * found = search_bplus(root , search_id);
+    if (found == NULL)
+    {
+        printf("Student with id : %d not found...\n" , search_id);
+    }else
+    {
+        printf("SUCCESS\n");
+        print_student(*found);
+    }
     return 0;
 }
