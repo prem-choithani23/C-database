@@ -374,7 +374,7 @@ int main() {
 
 
     printf("\n");
-    int start = 4,end = 30;
+    int start = 5,end = 18;
     printf("Getting students between id %d & %d : \n" ,start,end);
     get_students_between(root , start , end);
 
